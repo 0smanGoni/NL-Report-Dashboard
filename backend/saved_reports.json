@@ -1,0 +1,1342 @@
+[
+  {
+    "id": 38,
+    "title": "How many work orders are currently in progress?",
+    "original_prompt": "How many work orders are currently in progress?",
+    "sql_query": "SELECT COUNT(*) AS InProgressWorkOrders\nFROM Production.ProductionProcess\nWHERE IsActive = 1;",
+    "json_result": [
+      {
+        "InProgressWorkOrders": 6
+      }
+    ],
+    "summary": "1 rows returned",
+    "chart_type": "table",
+    "created_at": "2025-04-24 10:44:29.291589"
+  },
+  {
+    "id": 37,
+    "title": "What was our net profit in Q1?",
+    "original_prompt": "What was our net profit in Q1?",
+    "sql_query": "SELECT \n    SUM(CASE WHEN dbo.ChartOfAcc.Normally = 'Credit' THEN slr.Amount ELSE -slr.Amount END) AS NetProfit\nFROM \n    dbo.SubLedgerRow slr\nINNER JOIN \n    dbo.SubLedgerHeader slh ON slr.SubLedgerHeaderId = slh.SubLedgerHeaderId\nINNER JOIN \n    dbo.ChartOfAcc ON slr.ChartOfAccId = dbo.ChartOfAcc.ChartOfAccId\nWHERE \n    dbo.ChartOfAcc.IsIncomeStatement = 1\n    AND slh.TransactionDate >= DATEADD(QUARTER, DATEDIFF(QUARTER, 0, GETDATE()) - 1, 0)\n    AND slh.TransactionDate < DATEADD(QUARTER, DATEDIFF(QUARTER, 0, GETDATE()), 0)\n    AND slh.IsActive = 1\n    AND slr.ChartOfAccId IS NOT NULL;",
+    "json_result": [
+      {
+        "NetProfit": -32821945.4948
+      }
+    ],
+    "summary": "1 rows returned",
+    "chart_type": "table",
+    "created_at": "2025-04-22 16:45:11.875401"
+  },
+  {
+    "id": 36,
+    "title": "What are the total receivables due this week?",
+    "original_prompt": "What are the total receivables due this week?",
+    "sql_query": "SELECT SUM(dr.ReceiveAmount) AS TotalReceivablesDueThisWeek\nFROM dbo.DueReceive dr\nWHERE dr.ReceiveDate BETWEEN DATEADD(DAY, -DATEPART(WEEKDAY, GETDATE()) + 1, CAST(GETDATE() AS DATE)) \n                          AND DATEADD(DAY, 7 - DATEPART(WEEKDAY, GETDATE()), CAST(GETDATE() AS DATE))\nAND dr.IsActive = 1",
+    "json_result": [
+      {
+        "TotalReceivablesDueThisWeek": 5010
+      }
+    ],
+    "summary": "1 rows returned",
+    "chart_type": "table",
+    "created_at": "2025-04-22 16:44:23.939133"
+  },
+  {
+    "id": 35,
+    "title": "What is the most purchased item category this year?",
+    "original_prompt": "What is the most purchased item category this year?",
+    "sql_query": "SELECT TOP 1\n    ic.ItemCategoryName,\n    SUM(sdl.Quantity) AS TotalQuantityPurchased\nFROM \n    dbo.SalesDeliveryLine sdl\nJOIN \n    dbo.Item i ON sdl.ItemId = i.ItemId\nJOIN \n    dbo.ItemCategory ic ON i.ItemCategoryId = ic.ItemCategoryId\nWHERE \n    YEAR(sdl.WarrantyExpiredDate) = YEAR(GETDATE())\nGROUP BY \n    ic.ItemCategoryName\nORDER BY \n    TotalQuantityPurchased DESC;",
+    "json_result": [
+      {
+        "ItemCategoryName": "Training",
+        "TotalQuantityPurchased": 100154
+      }
+    ],
+    "summary": "1 rows returned",
+    "chart_type": "bar",
+    "created_at": "2025-04-22 16:40:19.205266"
+  },
+  {
+    "id": 34,
+    "title": "How many GRNs were created last month?",
+    "original_prompt": "How many GRNs were created last month?",
+    "sql_query": "SELECT COUNT(*) AS GRNCount\nFROM dbo.PurchaseReceive\nWHERE MONTH(ReceiveDate) = MONTH(DATEADD(MONTH, -1, GETDATE()))\nAND YEAR(ReceiveDate) = YEAR(DATEADD(MONTH, -1, GETDATE()))",
+    "json_result": [
+      {
+        "GRNCount": 93
+      }
+    ],
+    "summary": "1 rows returned",
+    "chart_type": "table",
+    "created_at": "2025-04-22 16:21:04.797359"
+  },
+  {
+    "id": 33,
+    "title": "How many purchase orders are pending in the current month?",
+    "original_prompt": "How many purchase orders are pending in the current month?",
+    "sql_query": "SELECT COUNT(*) AS PendingPurchaseOrders\nFROM dbo.PurchaseOrder\nWHERE MONTH(OrderDate) = MONTH(GETDATE())\nAND YEAR(OrderDate) = YEAR(GETDATE())\nAND isApproved = 0\nAND isCancelled = 0\nAND isComplete = 0;",
+    "json_result": [
+      {
+        "PendingPurchaseOrders": 9
+      }
+    ],
+    "summary": "1 rows returned",
+    "chart_type": "table",
+    "created_at": "2025-04-22 16:11:46.561775"
+  },
+  {
+    "id": 31,
+    "title": "Who are our top 5 vendors by volume in the last 6 months?",
+    "original_prompt": "Who are our top 5 vendors by volume in the last 6 months?",
+    "sql_query": "SELECT TOP 5\n    pr.SupplierId,\n    p.PartnerName AS SupplierName,\n    SUM(pr.TotalQuantity) AS TotalVolume\nFROM \n    dbo.PurchaseReceive pr\nJOIN \n    dbo.Partner p ON pr.SupplierId = p.PartnerId\nWHERE \n    pr.ReceiveDate >= DATEADD(MONTH, -6, GETDATE())\n    AND pr.isActive = 1\nGROUP BY \n    pr.SupplierId, p.PartnerName\nORDER BY \n    TotalVolume DESC",
+    "json_result": [
+      {
+        "SupplierId": 59952,
+        "SupplierName": "Agora LTD",
+        "TotalVolume": 100020231
+      },
+      {
+        "SupplierId": 27113,
+        "SupplierName": "ADVANCE-test",
+        "TotalVolume": 131258
+      },
+      {
+        "SupplierId": 48901,
+        "SupplierName": "ACC-Distribution",
+        "TotalVolume": 111059
+      },
+      {
+        "SupplierId": 28242,
+        "SupplierName": "Amin Mohammad Group",
+        "TotalVolume": 104954.45
+      },
+      {
+        "SupplierId": 26307,
+        "SupplierName": "a1 group",
+        "TotalVolume": 75044
+      }
+    ],
+    "summary": "5 rows returned",
+    "chart_type": "table",
+    "created_at": "2025-04-22 16:07:46.483043"
+  },
+  {
+    "id": 30,
+    "title": "What was the total purchase amount last month?",
+    "original_prompt": "What was the total purchase amount last month?",
+    "sql_query": "SELECT SUM(NetAmount) AS TotalPurchaseAmount\nFROM dbo.PurchaseReceive\nWHERE ReceiveDate >= DATEADD(MONTH, -1, DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()), 0))\nAND ReceiveDate < DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()), 0)\nAND isActive = 1",
+    "json_result": [
+      {
+        "TotalPurchaseAmount": 62735142.27
+      }
+    ],
+    "summary": "1 rows returned",
+    "chart_type": "table",
+    "created_at": "2025-04-22 16:06:29.038487"
+  },
+  {
+    "id": 29,
+    "title": "What is the gross margin by product for the current quarter?",
+    "original_prompt": "What is the gross margin by product for the current quarter?",
+    "sql_query": "WITH CurrentQuarterSales AS (\n    SELECT \n        sdl.ItemId,\n        sdl.ItemName,\n        SUM(sdl.Quantity) AS SalesQuantity,\n        SUM(sdl.NetAmount) AS SalesAmount,\n        SUM(sdl.CostTotal) AS CostOfGoodsSold\n    FROM \n        dbo.SalesDeliveryLine sdl\n    JOIN \n        dbo.SalesDelivery sd ON sdl.SalesOrderId = sd.SalesOrderId\n    WHERE \n        sd.OrderDate >= DATEADD(QUARTER, DATEDIFF(QUARTER, 0, GETDATE()), 0)\n        AND sd.OrderDate < DATEADD(QUARTER, DATEDIFF(QUARTER, 0, GETDATE()) + 1, 0)\n        AND sd.isActive = 1\n    GROUP BY \n        sdl.ItemId, sdl.ItemName\n)\n\nSELECT \n    ItemId,\n    ItemName,\n    SalesQuantity,\n    SalesAmount,\n    CostOfGoodsSold,\n    (SalesAmount - CostOfGoodsSold) AS GrossMargin,\n    CASE \n        WHEN SalesAmount = 0 THEN 0 \n        ELSE ((SalesAmount - CostOfGoodsSold) / SalesAmount) * 100 \n    END AS GrossMarginPercentage\nFROM \n    CurrentQuarterSales\nORDER BY \n    GrossMargin DESC;",
+    "json_result": [
+      {
+        "ItemId": 97234,
+        "ItemName": "Dan Cake ",
+        "SalesQuantity": 382,
+        "SalesAmount": 10505,
+        "CostOfGoodsSold": 2727.48,
+        "GrossMargin": 7777.52,
+        "GrossMarginPercentage": 74.0363
+      },
+      {
+        "ItemId": 96450,
+        "ItemName": "zxcv-white",
+        "SalesQuantity": 78,
+        "SalesAmount": 7799,
+        "CostOfGoodsSold": 3896.1,
+        "GrossMargin": 3902.9,
+        "GrossMarginPercentage": 50.0435
+      },
+      {
+        "ItemId": 96419,
+        "ItemName": "Cheetos",
+        "SalesQuantity": 26,
+        "SalesAmount": 6396.44,
+        "CostOfGoodsSold": 3120,
+        "GrossMargin": 3276.44,
+        "GrossMarginPercentage": 51.2228
+      },
+      {
+        "ItemId": 96601,
+        "ItemName": "Nutella 200",
+        "SalesQuantity": 24,
+        "SalesAmount": 6168,
+        "CostOfGoodsSold": 2930.25,
+        "GrossMargin": 3237.75,
+        "GrossMarginPercentage": 52.4927
+      },
+      {
+        "ItemId": 96417,
+        "ItemName": "Doritos 400",
+        "SalesQuantity": 17,
+        "SalesAmount": 3418,
+        "CostOfGoodsSold": 1711.47,
+        "GrossMargin": 1706.53,
+        "GrossMarginPercentage": 49.9277
+      },
+      {
+        "ItemId": 97199,
+        "ItemName": "Iphone 16 128gb",
+        "SalesQuantity": 2,
+        "SalesAmount": 2136.8041,
+        "CostOfGoodsSold": 585.44,
+        "GrossMargin": 1551.3641,
+        "GrossMarginPercentage": 72.602
+      },
+      {
+        "ItemId": 97195,
+        "ItemName": "Iphone 16e",
+        "SalesQuantity": 2,
+        "SalesAmount": 1656.9,
+        "CostOfGoodsSold": 619.94,
+        "GrossMargin": 1036.96,
+        "GrossMarginPercentage": 62.5843
+      },
+      {
+        "ItemId": 65702,
+        "ItemName": "Training material",
+        "SalesQuantity": 3,
+        "SalesAmount": 875,
+        "CostOfGoodsSold": 9.75,
+        "GrossMargin": 865.25,
+        "GrossMarginPercentage": 98.8857
+      },
+      {
+        "ItemId": 96416,
+        "ItemName": "lays 25",
+        "SalesQuantity": 7,
+        "SalesAmount": 906,
+        "CostOfGoodsSold": 347.97,
+        "GrossMargin": 558.03,
+        "GrossMarginPercentage": 61.5927
+      },
+      {
+        "ItemId": 97231,
+        "ItemName": "Table clock 11",
+        "SalesQuantity": 1,
+        "SalesAmount": 11,
+        "CostOfGoodsSold": 1.86,
+        "GrossMargin": 9.14,
+        "GrossMarginPercentage": 83.0909
+      },
+      {
+        "ItemId": 65698,
+        "ItemName": "Table clock",
+        "SalesQuantity": 1,
+        "SalesAmount": 10,
+        "CostOfGoodsSold": 1.86,
+        "GrossMargin": 8.14,
+        "GrossMarginPercentage": 81.4
+      },
+      {
+        "ItemId": 65820,
+        "ItemName": "Zingzag Biscuit",
+        "SalesQuantity": 1,
+        "SalesAmount": 10,
+        "CostOfGoodsSold": 3,
+        "GrossMargin": 7,
+        "GrossMarginPercentage": 70
+      },
+      {
+        "ItemId": 97222,
+        "ItemName": "RAW M 01 ",
+        "SalesQuantity": 5,
+        "SalesAmount": 50,
+        "CostOfGoodsSold": 50,
+        "GrossMargin": 0,
+        "GrossMarginPercentage": 0
+      },
+      {
+        "ItemId": 97244,
+        "ItemName": "EXC Batch 2",
+        "SalesQuantity": 10,
+        "SalesAmount": 100,
+        "CostOfGoodsSold": 100,
+        "GrossMargin": 0,
+        "GrossMarginPercentage": 0
+      },
+      {
+        "ItemId": 96532,
+        "ItemName": "yttt-white/L",
+        "SalesQuantity": 1,
+        "SalesAmount": 2.2,
+        "CostOfGoodsSold": 11.57,
+        "GrossMargin": -9.37,
+        "GrossMarginPercentage": -425.909
+      },
+      {
+        "ItemId": 75902,
+        "ItemName": "Meril Lip Blam  nS",
+        "SalesQuantity": 2,
+        "SalesAmount": 4,
+        "CostOfGoodsSold": 100,
+        "GrossMargin": -96,
+        "GrossMarginPercentage": -2400
+      },
+      {
+        "ItemId": 37493,
+        "ItemName": "Wheelbarrow Big",
+        "SalesQuantity": 2,
+        "SalesAmount": 200,
+        "CostOfGoodsSold": 301.16,
+        "GrossMargin": -101.16,
+        "GrossMarginPercentage": -50.58
+      },
+      {
+        "ItemId": 97221,
+        "ItemName": "BIG BOSS ",
+        "SalesQuantity": 16,
+        "SalesAmount": 116.6,
+        "CostOfGoodsSold": 223.54,
+        "GrossMargin": -106.94,
+        "GrossMarginPercentage": -91.7152
+      },
+      {
+        "ItemId": 97232,
+        "ItemName": "Zingzan biscut",
+        "SalesQuantity": 6,
+        "SalesAmount": 11,
+        "CostOfGoodsSold": 120,
+        "GrossMargin": -109,
+        "GrossMarginPercentage": -990.909
+      },
+      {
+        "ItemId": 96215,
+        "ItemName": "Wrapper",
+        "SalesQuantity": 2,
+        "SalesAmount": 55.125,
+        "CostOfGoodsSold": 170.78,
+        "GrossMargin": -115.655,
+        "GrossMarginPercentage": -209.8049
+      },
+      {
+        "ItemId": 96533,
+        "ItemName": "yttt-white/M",
+        "SalesQuantity": 2,
+        "SalesAmount": 4.4,
+        "CostOfGoodsSold": 152.06,
+        "GrossMargin": -147.66,
+        "GrossMarginPercentage": -3355.909
+      },
+      {
+        "ItemId": 97243,
+        "ItemName": "EXC Batch 1",
+        "SalesQuantity": 40,
+        "SalesAmount": 160,
+        "CostOfGoodsSold": 400,
+        "GrossMargin": -240,
+        "GrossMarginPercentage": -150
+      },
+      {
+        "ItemId": 96208,
+        "ItemName": "wings",
+        "SalesQuantity": 8,
+        "SalesAmount": 1146.6,
+        "CostOfGoodsSold": 1401.44,
+        "GrossMargin": -254.84,
+        "GrossMarginPercentage": -22.2257
+      },
+      {
+        "ItemId": 65846,
+        "ItemName": "Zigjag Biscuit",
+        "SalesQuantity": 2,
+        "SalesAmount": 132,
+        "CostOfGoodsSold": 936.46,
+        "GrossMargin": -804.46,
+        "GrossMarginPercentage": -609.4393
+      },
+      {
+        "ItemId": 39386,
+        "ItemName": "Wheat",
+        "SalesQuantity": 12,
+        "SalesAmount": 569,
+        "CostOfGoodsSold": 5916.72,
+        "GrossMargin": -5347.72,
+        "GrossMarginPercentage": -939.8453
+      },
+      {
+        "ItemId": 97230,
+        "ItemName": "Winter Pitha yy",
+        "SalesQuantity": 2,
+        "SalesAmount": 19,
+        "CostOfGoodsSold": 7343.54,
+        "GrossMargin": -7324.54,
+        "GrossMarginPercentage": -38550.2105
+      },
+      {
+        "ItemId": 37542,
+        "ItemName": "Wheelbarrow for Shop",
+        "SalesQuantity": 12,
+        "SalesAmount": 2400,
+        "CostOfGoodsSold": 10099.44,
+        "GrossMargin": -7699.44,
+        "GrossMarginPercentage": -320.81
+      },
+      {
+        "ItemId": 96531,
+        "ItemName": "yttt-red/M",
+        "SalesQuantity": 500,
+        "SalesAmount": 11000,
+        "CostOfGoodsSold": 117600,
+        "GrossMargin": -106600,
+        "GrossMarginPercentage": -969.0909
+      }
+    ],
+    "summary": "28 rows returned",
+    "chart_type": "table",
+    "created_at": "2025-04-22 15:53:39.190484"
+  },
+  {
+    "id": 28,
+    "title": "What is the discount amount in the current month?",
+    "original_prompt": "What is the discount amount in the current month?",
+    "sql_query": "SELECT \n    SUM(da.Amount) AS TotalDiscountAmount\nFROM \n    dbo.DiscountByAmount da\nWHERE \n    da.isActive = 1\n    AND YEAR(da.dteStart) = YEAR(GETDATE())\n    AND MONTH(da.dteStart) = MONTH(GETDATE())",
+    "json_result": [
+      {
+        "TotalDiscountAmount": 485.49
+      }
+    ],
+    "summary": "1 rows returned",
+    "chart_type": "table",
+    "created_at": "2025-04-22 15:46:20.414222"
+  },
+  {
+    "id": 27,
+    "title": "Which Territory had the highest sales volume on 2024?",
+    "original_prompt": "Which Territory had the highest sales volume on 2024?",
+    "sql_query": "SELECT TOP 1 \n    st.TerritoryName,\n    SUM(sd.NetAmount) AS TotalSalesVolume\nFROM \n    dbo.SalesDelivery sd\nJOIN \n    dbo.SalesTerritory st ON sd.BranchId = st.BranchId\nWHERE \n    YEAR(sd.DeliveryDate) = 2024\n    AND sd.IsActive = 1\nGROUP BY \n    st.TerritoryName\nORDER BY \n    TotalSalesVolume DESC",
+    "json_result": [
+      {
+        "TerritoryName": "Bogura",
+        "TotalSalesVolume": 88702463.9259
+      }
+    ],
+    "summary": "1 rows returned",
+    "chart_type": "bar",
+    "created_at": "2025-04-22 12:41:20.556286"
+  },
+  {
+    "id": 26,
+    "title": "Can I get monthly sales value for the last year?",
+    "original_prompt": "Can I get monthly sales value for the last year?",
+    "sql_query": "SELECT \n    YEAR(DeliveryDate) AS Year,\n    MONTH(DeliveryDate) AS Month,\n    SUM(NetAmount) AS MonthlySalesValue\nFROM \n    dbo.SalesDelivery\nWHERE \n    DeliveryDate >= DATEADD(YEAR, -1, GETDATE())\n    AND DeliveryDate <= GETDATE()\n    AND isActive = 1\nGROUP BY \n    YEAR(DeliveryDate),\n    MONTH(DeliveryDate)\nORDER BY \n    Year,\n    Month",
+    "json_result": [
+      {
+        "Year": 2024,
+        "Month": 4,
+        "MonthlySalesValue": 1609216.9967
+      },
+      {
+        "Year": 2024,
+        "Month": 5,
+        "MonthlySalesValue": 3655550.7479
+      },
+      {
+        "Year": 2024,
+        "Month": 6,
+        "MonthlySalesValue": 269170
+      },
+      {
+        "Year": 2024,
+        "Month": 7,
+        "MonthlySalesValue": 2206375.7727
+      },
+      {
+        "Year": 2024,
+        "Month": 8,
+        "MonthlySalesValue": -9202482.7237
+      },
+      {
+        "Year": 2024,
+        "Month": 9,
+        "MonthlySalesValue": 410682.554
+      },
+      {
+        "Year": 2024,
+        "Month": 10,
+        "MonthlySalesValue": 20637452.4408
+      },
+      {
+        "Year": 2024,
+        "Month": 11,
+        "MonthlySalesValue": 102276.2
+      },
+      {
+        "Year": 2024,
+        "Month": 12,
+        "MonthlySalesValue": 555762.2667
+      },
+      {
+        "Year": 2025,
+        "Month": 1,
+        "MonthlySalesValue": 989670.0675
+      },
+      {
+        "Year": 2025,
+        "Month": 2,
+        "MonthlySalesValue": 4387136.2274
+      },
+      {
+        "Year": 2025,
+        "Month": 3,
+        "MonthlySalesValue": 983984.9782
+      },
+      {
+        "Year": 2025,
+        "Month": 4,
+        "MonthlySalesValue": 55930.7291
+      }
+    ],
+    "summary": "13 rows returned",
+    "chart_type": "table",
+    "created_at": "2025-04-22 12:06:18.065833"
+  },
+  {
+    "id": 25,
+    "title": "How many invoices were generated from sales orders last month?",
+    "original_prompt": "How many invoices were generated from sales orders last month?",
+    "sql_query": "SELECT COUNT(*) AS InvoiceCount\nFROM dbo.SalesDelivery\nWHERE IsBillCreated = 1\n  AND OrderDate >= DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()) - 1, 0)\n  AND OrderDate < DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()), 0);",
+    "json_result": [
+      {
+        "InvoiceCount": 0
+      }
+    ],
+    "summary": "1 rows returned",
+    "chart_type": "table",
+    "created_at": "2025-04-22 12:05:28.033566"
+  },
+  {
+    "id": 24,
+    "title": "What is the current month total sales value?",
+    "original_prompt": "What is the current month total sales value?",
+    "sql_query": "SELECT \n    SUM(NetAmount) AS CurrentMonthTotalSales\nFROM \n    dbo.SalesDelivery\nWHERE \n    MONTH(DeliveryDate) = MONTH(GETDATE())\n    AND YEAR(DeliveryDate) = YEAR(GETDATE())\n    AND isActive = 1\n    AND SalesOrReturn = 'Sales';",
+    "json_result": [
+      {
+        "CurrentMonthTotalSales": 56957.7291
+      }
+    ],
+    "summary": "1 rows returned",
+    "chart_type": "table",
+    "created_at": "2025-04-22 12:03:55.420495"
+  },
+  {
+    "id": 23,
+    "title": "max 10 customer on sell on bar ghraph",
+    "original_prompt": "max 10 customer on sell on bar ghraph",
+    "sql_query": "SELECT TOP 10 \n    p.PartnerName AS CustomerName,\n    SUM(sd.NetAmount) AS TotalSalesAmount\nFROM \n    dbo.SalesDelivery sd\nJOIN \n    dbo.Partner p ON sd.CustomerId = p.PartnerId\nWHERE \n    sd.isActive = 1\n    AND sd.SalesOrReturn = 'Sales'\nGROUP BY \n    p.PartnerName\nORDER BY \n    TotalSalesAmount DESC;",
+    "json_result": [
+      {
+        "CustomerName": "ENA",
+        "TotalSalesAmount": 46700131.58
+      },
+      {
+        "CustomerName": "Jahid managar",
+        "TotalSalesAmount": 37479528.62
+      },
+      {
+        "CustomerName": "BABUL STORE",
+        "TotalSalesAmount": 33978422.84
+      },
+      {
+        "CustomerName": "Shonagaji Bazar",
+        "TotalSalesAmount": 25424235.52
+      },
+      {
+        "CustomerName": "Alom Traders (Amtoli,Bogura)",
+        "TotalSalesAmount": 23528194
+      },
+      {
+        "CustomerName": "HS Engineering",
+        "TotalSalesAmount": 23199300
+      },
+      {
+        "CustomerName": "Cash Customer",
+        "TotalSalesAmount": 22415056.66
+      },
+      {
+        "CustomerName": "Crop Protection & Care Center",
+        "TotalSalesAmount": 18915429.12
+      },
+      {
+        "CustomerName": "Metal Plus Limited",
+        "TotalSalesAmount": 18581300
+      },
+      {
+        "CustomerName": "Sapahar Traders (Sapahar,Naogaon)",
+        "TotalSalesAmount": 15049299
+      }
+    ],
+    "summary": "10 rows returned",
+    "chart_type": "bar",
+    "created_at": "2025-04-22 12:00:37.169459"
+  },
+  {
+    "id": 22,
+    "title": "Which product had the highest sales volume last quarter?",
+    "original_prompt": "Which product had the highest sales volume last quarter?",
+    "sql_query": "SELECT TOP 1\n    i.ItemName,\n    SUM(sdl.Quantity) AS TotalSalesVolume\nFROM \n    dbo.SalesDeliveryLine sdl\nJOIN \n    dbo.Item i ON sdl.ItemId = i.ItemId\nJOIN \n    dbo.SalesDelivery sd ON sdl.SalesOrderId = sd.SalesOrderId\nWHERE \n    sd.DeliveryDate >= DATEADD(QUARTER, DATEDIFF(QUARTER, 0, GETDATE()) - 1, 0)\n    AND sd.DeliveryDate < DATEADD(QUARTER, DATEDIFF(QUARTER, 0, GETDATE()), 0)\n    AND sd.SalesOrReturn = 'Sales'\nGROUP BY \n    i.ItemName\nORDER BY \n    TotalSalesVolume DESC;",
+    "json_result": [
+      {
+        "ItemName": "Training material",
+        "TotalSalesVolume": 100151
+      }
+    ],
+    "summary": "1 rows returned",
+    "chart_type": "bar",
+    "created_at": "2025-04-22 11:35:38.836949"
+  },
+  {
+    "id": 19,
+    "title": "Show me all Approved sales orders.",
+    "original_prompt": "Show me all Approved sales orders.",
+    "sql_query": "SELECT *\nFROM rtm.tblSalesOrderHeader\nWHERE IsApproved = 1\nAND IsActive = 1;",
+    "json_result": [
+      {
+        "SalesOrderId": 3,
+        "SalesOrderCode": "SO-M240500019",
+        "AccountId": 20218,
+        "AccountName": "Managerium",
+        "BranchId": 40326,
+        "BranchName": "Managerium",
+        "CustomerId": 6,
+        "CustomerName": "Bhai Bhai Store",
+        "OrderDate": "2024-05-12",
+        "DeliveryDate": "2024-05-12",
+        "Remarks": "",
+        "TotalQuantity": 20,
+        "DeliveredQuantity": 20,
+        "ItemTotalAmount": 862.4,
+        "OthersCost": 0,
+        "TotalLineDiscount": 0,
+        "HeaderDiscount": 0,
+        "HeaderDiscountPercentage": 0,
+        "NetDiscount": 0,
+        "NetAmount": 862.4,
+        "ReceiveAmount": 0,
+        "PendingAmount": 0,
+        "SalesForceId": 10903,
+        "SalesForceName": "Raihan",
+        "ActionById": 20566,
+        "ActionByName": "Manageriun",
+        "IsApproved": true,
+        "IsCancelled": false,
+        "IsCompleted": true,
+        "ActionTime": "2024-05-12T00:00:00",
+        "IsActive": true,
+        "IsCompletedById": 20566,
+        "IsApprovedById": 20566,
+        "IsCancelledById": 0,
+        "SalesQuotationId": 0,
+        "SalesQuotationCode": "",
+        "TotalSd": 0,
+        "TotalVat": 0,
+        "DiscoundItemTotalPrice": 0,
+        "OfferItemTotal": 0,
+        "isInclusive": true,
+        "OfficeId": 93,
+        "CustomerPO": "",
+        "AdvanceAmount": 0,
+        "AdjustedAmount": 0,
+        "AdvanceRemainingAmount": 0,
+        "WalletId": 0,
+        "WalletCommision": 0,
+        "JournalId": 0,
+        "ShippingAddressId": 0,
+        "ShippingAddressName": "",
+        "ShippingContactPerson": "",
+        "IsClosed": false,
+        "ClosedById": 0,
+        "PaymentTypeId": 0,
+        "PaymentTypeName": "",
+        "BankAccId": 0,
+        "BankAccName": "",
+        "IsGrossDiscount": false,
+        "ExtraCharge": 0,
+        "SalesOrderLatitude": 0,
+        "SalesOrderLongitude": 0,
+        "TerritoryId": 891,
+        "TerritoryName": "Sridharpur",
+        "RouteId": 892,
+        "RouteName": "Shridharpur 471/2",
+        "MarketId": 895,
+        "MarketName": "Sridharpur Mashjid Market",
+        "IsNoOrder": false
+      },
+      {
+        "SalesOrderId": 5,
+        "SalesOrderCode": "SO-M240500021",
+        "AccountId": 20218,
+        "AccountName": "Managerium",
+        "BranchId": 40326,
+        "BranchName": "Managerium",
+        "CustomerId": 18,
+        "CustomerName": "Bengal Bazaar",
+        "OrderDate": "2024-05-12",
+        "DeliveryDate": "2024-05-12",
+        "Remarks": "",
+        "TotalQuantity": 30,
+        "DeliveredQuantity": 0,
+        "ItemTotalAmount": 1602.4,
+        "OthersCost": 0,
+        "TotalLineDiscount": 0,
+        "HeaderDiscount": 0,
+        "HeaderDiscountPercentage": 0,
+        "NetDiscount": 0,
+        "NetAmount": 1602.4,
+        "ReceiveAmount": 0,
+        "PendingAmount": 0,
+        "SalesForceId": 10903,
+        "SalesForceName": "Raihan",
+        "ActionById": 20566,
+        "ActionByName": "Manageriun",
+        "IsApproved": true,
+        "IsCancelled": false,
+        "IsCompleted": true,
+        "ActionTime": "2024-05-12T00:00:00",
+        "IsActive": true,
+        "IsCompletedById": 20566,
+        "IsApprovedById": 20566,
+        "IsCancelledById": 0,
+        "SalesQuotationId": 0,
+        "SalesQuotationCode": "",
+        "TotalSd": 0,
+        "TotalVat": 0,
+        "DiscoundItemTotalPrice": 0,
+        "OfferItemTotal": 0,
+        "isInclusive": true,
+        "OfficeId": 93,
+        "CustomerPO": "",
+        "AdvanceAmount": 0,
+        "AdjustedAmount": 0,
+        "AdvanceRemainingAmount": 0,
+        "WalletId": 0,
+        "WalletCommision": 0,
+        "JournalId": 0,
+        "ShippingAddressId": 0,
+        "ShippingAddressName": "",
+        "ShippingContactPerson": "",
+        "IsClosed": false,
+        "ClosedById": 0,
+        "PaymentTypeId": 0,
+        "PaymentTypeName": "",
+        "BankAccId": 0,
+        "BankAccName": "",
+        "IsGrossDiscount": false,
+        "ExtraCharge": 0,
+        "SalesOrderLatitude": 0,
+        "SalesOrderLongitude": 0,
+        "TerritoryId": 891,
+        "TerritoryName": "Sridharpur",
+        "RouteId": 892,
+        "RouteName": "Shridharpur 471/2",
+        "MarketId": 895,
+        "MarketName": "Sridharpur Mashjid Market",
+        "IsNoOrder": false
+      },
+      {
+        "SalesOrderId": 6,
+        "SalesOrderCode": "SO-M240500022",
+        "AccountId": 20218,
+        "AccountName": "Managerium",
+        "BranchId": 40326,
+        "BranchName": "Managerium",
+        "CustomerId": 10,
+        "CustomerName": "Insaf Cafe",
+        "OrderDate": "2024-05-07",
+        "DeliveryDate": "2024-05-07",
+        "Remarks": "Fund Shortage",
+        "TotalQuantity": 0,
+        "DeliveredQuantity": 0,
+        "ItemTotalAmount": 0,
+        "OthersCost": 0,
+        "TotalLineDiscount": 0,
+        "HeaderDiscount": 0,
+        "HeaderDiscountPercentage": 0,
+        "NetDiscount": 0,
+        "NetAmount": 0,
+        "ReceiveAmount": 0,
+        "PendingAmount": 0,
+        "SalesForceId": 10903,
+        "SalesForceName": "Raihan",
+        "ActionById": 20566,
+        "ActionByName": "Manageriun",
+        "IsApproved": true,
+        "IsCancelled": false,
+        "IsCompleted": true,
+        "ActionTime": "2024-05-07T00:00:00",
+        "IsActive": true,
+        "IsCompletedById": 20566,
+        "IsApprovedById": 20566,
+        "IsCancelledById": 0,
+        "SalesQuotationId": 0,
+        "SalesQuotationCode": "",
+        "TotalSd": 0,
+        "TotalVat": 0,
+        "DiscoundItemTotalPrice": 0,
+        "OfferItemTotal": 0,
+        "isInclusive": true,
+        "OfficeId": 93,
+        "CustomerPO": "",
+        "AdvanceAmount": 0,
+        "AdjustedAmount": 0,
+        "AdvanceRemainingAmount": 0,
+        "WalletId": 0,
+        "WalletCommision": 0,
+        "JournalId": 0,
+        "ShippingAddressId": 0,
+        "ShippingAddressName": "",
+        "ShippingContactPerson": "",
+        "IsClosed": false,
+        "ClosedById": 0,
+        "PaymentTypeId": 0,
+        "PaymentTypeName": "",
+        "BankAccId": 0,
+        "BankAccName": "",
+        "IsGrossDiscount": false,
+        "ExtraCharge": 0,
+        "SalesOrderLatitude": 0,
+        "SalesOrderLongitude": 0,
+        "TerritoryId": 891,
+        "TerritoryName": "Sridharpur",
+        "RouteId": 894,
+        "RouteName": "Pouroshovha Road 258",
+        "MarketId": 897,
+        "MarketName": "Local Market",
+        "IsNoOrder": true
+      }
+    ],
+    "summary": "3 rows returned",
+    "chart_type": "table",
+    "created_at": "2025-04-21 11:16:14.927375"
+  },
+  {
+    "id": 18,
+    "title": "Who are the top 10 customers based on sales in the last 3 months?",
+    "original_prompt": "Who are the top 10 customers based on sales in the last 3 months?",
+    "sql_query": "SELECT TOP 10 \n    p.PartnerId,\n    p.PartnerName,\n    SUM(sd.NetAmount) AS TotalSalesAmount\nFROM \n    Partner p\nJOIN \n    SalesDelivery sd ON p.PartnerId = sd.CustomerId\nWHERE \n    sd.DeliveryDate >= DATEADD(MONTH, -3, GETDATE())\n    AND sd.DeliveryDate <= GETDATE()\n    AND sd.isActive = 1\nGROUP BY \n    p.PartnerId,\n    p.PartnerName\nORDER BY \n    TotalSalesAmount DESC;",
+    "json_result": [
+      {
+        "PartnerId": 80400,
+        "PartnerName": "Ron",
+        "TotalSalesAmount": 3502480
+      },
+      {
+        "PartnerId": 80517,
+        "PartnerName": "29 Customer Adjust Discount",
+        "TotalSalesAmount": 674230.88
+      },
+      {
+        "PartnerId": 27275,
+        "PartnerName": "29 Customer Adjust Discount",
+        "TotalSalesAmount": 253945.758
+      },
+      {
+        "PartnerId": 80658,
+        "PartnerName": "Desh Logistics Co. Ltd.",
+        "TotalSalesAmount": 250400
+      },
+      {
+        "PartnerId": 80509,
+        "PartnerName": "Zero",
+        "TotalSalesAmount": 246040
+      },
+      {
+        "PartnerId": 25911,
+        "PartnerName": "Sakil",
+        "TotalSalesAmount": 140000
+      },
+      {
+        "PartnerId": 49730,
+        "PartnerName": "abc",
+        "TotalSalesAmount": 54194.4177
+      },
+      {
+        "PartnerId": 80311,
+        "PartnerName": "Available Stock 3",
+        "TotalSalesAmount": 30908.49
+      },
+      {
+        "PartnerId": 26878,
+        "PartnerName": "ADV.RTN Partner",
+        "TotalSalesAmount": 19800
+      },
+      {
+        "PartnerId": 59927,
+        "PartnerName": "Kazi Rafiqul Islam",
+        "TotalSalesAmount": 16675
+      }
+    ],
+    "summary": "10 rows returned",
+    "chart_type": "table",
+    "created_at": "2025-04-21 10:47:55.548280"
+  },
+  {
+    "id": 17,
+    "title": "What was the total sales quantity last month?",
+    "original_prompt": "What was the total sales quantity last month?",
+    "sql_query": "SELECT SUM(TotalQuantity) AS TotalSalesQuantity\nFROM SalesDelivery\nWHERE DeliveryDate >= DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()) - 1, 0)\n  AND DeliveryDate < DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()), 0)\n  AND isActive = 1;",
+    "json_result": [
+      {
+        "TotalSalesQuantity": 4156.1
+      }
+    ],
+    "summary": "1 rows returned",
+    "chart_type": "table",
+    "created_at": "2025-04-21 10:42:18.475294"
+  },
+  {
+    "id": 16,
+    "title": "max 10 customer on sell",
+    "original_prompt": "max 10 customer on sell",
+    "sql_query": "SELECT TOP 10 \n    p.PartnerId,\n    p.PartnerName,\n    p.PartnerCode,\n    p.PartnerTypeName,\n    COUNT(co.CustomerOrderId) AS TotalOrders,\n    SUM(co.NetAmount) AS TotalSalesAmount\nFROM \n    Partner p\nLEFT JOIN \n    CustomerOrder co ON p.PartnerId = co.CustomerId\nWHERE \n    p.PartnerTypeName = 'Customer'\n    AND co.IsActive = 1\n    AND co.IsCancelled = 0\nGROUP BY \n    p.PartnerId,\n    p.PartnerName,\n    p.PartnerCode,\n    p.PartnerTypeName\nORDER BY \n    TotalSalesAmount DESC;",
+    "json_result": [
+      {
+        "PartnerId": 80314,
+        "PartnerName": "29 Customer Adjust Discount22222",
+        "PartnerCode": "PRT-M0210",
+        "PartnerTypeName": "Customer",
+        "TotalOrders": 11,
+        "TotalSalesAmount": 10998956980.2
+      },
+      {
+        "PartnerId": 28584,
+        "PartnerName": "FAKIR FASHION LIMITED",
+        "PartnerCode": "PRT-M0427",
+        "PartnerTypeName": "Customer",
+        "TotalOrders": 128,
+        "TotalSalesAmount": 538052908.4489
+      },
+      {
+        "PartnerId": 26196,
+        "PartnerName": "Akij Group",
+        "PartnerCode": "PRT-DB0002",
+        "PartnerTypeName": "Customer",
+        "TotalOrders": 22,
+        "TotalSalesAmount": 213536420.68
+      },
+      {
+        "PartnerId": 60042,
+        "PartnerName": "Sahnaz Ahmed 2",
+        "PartnerCode": "111com",
+        "PartnerTypeName": "Customer",
+        "TotalOrders": 2,
+        "TotalSalesAmount": 160830600
+      },
+      {
+        "PartnerId": 23859,
+        "PartnerName": "Toyota Bangladesh",
+        "PartnerCode": "",
+        "PartnerTypeName": "Customer",
+        "TotalOrders": 1,
+        "TotalSalesAmount": 100000000
+      },
+      {
+        "PartnerId": 27071,
+        "PartnerName": "Hamidul islam",
+        "PartnerCode": "PRT-M0156",
+        "PartnerTypeName": "Customer",
+        "TotalOrders": 2,
+        "TotalSalesAmount": 99245000
+      },
+      {
+        "PartnerId": 26607,
+        "PartnerName": "Roni",
+        "PartnerCode": "PRT-DB0008",
+        "PartnerTypeName": "Customer",
+        "TotalOrders": 2,
+        "TotalSalesAmount": 70469220
+      },
+      {
+        "PartnerId": 26774,
+        "PartnerName": "HS Engineering",
+        "PartnerCode": "PRT-SPL0384",
+        "PartnerTypeName": "Customer",
+        "TotalOrders": 28,
+        "TotalSalesAmount": 38929300
+      },
+      {
+        "PartnerId": 26630,
+        "PartnerName": "Jahid managar",
+        "PartnerCode": "PRT-HO0009",
+        "PartnerTypeName": "Customer",
+        "TotalOrders": 51,
+        "TotalSalesAmount": 37482151.86
+      },
+      {
+        "PartnerId": 26494,
+        "PartnerName": "BABUL STORE",
+        "PartnerCode": "PRT-HO0007",
+        "PartnerTypeName": "Customer",
+        "TotalOrders": 318,
+        "TotalSalesAmount": 35184388.13
+      }
+    ],
+    "summary": "10 rows returned",
+    "chart_type": "table",
+    "created_at": "2025-04-20 16:08:24.260965"
+  },
+  {
+    "id": 15,
+    "title": "total ammount form PurchaseOrder by month in 2024 in table",
+    "original_prompt": "total ammount form PurchaseOrder by month in 2024 in table",
+    "sql_query": "SELECT \n    MONTH(OrderDate) AS Month,\n    SUM(NetAmount) AS TotalAmount\nFROM \n    PurchaseOrder\nWHERE \n    YEAR(OrderDate) = 2024\nGROUP BY \n    MONTH(OrderDate)\nORDER BY \n    Month;",
+    "json_result": [
+      {
+        "Month": 1,
+        "TotalAmount": 3612413.2
+      },
+      {
+        "Month": 2,
+        "TotalAmount": 1425422
+      },
+      {
+        "Month": 3,
+        "TotalAmount": 20236181.1459
+      },
+      {
+        "Month": 4,
+        "TotalAmount": 2444343.7296
+      },
+      {
+        "Month": 5,
+        "TotalAmount": 34901818.5141
+      },
+      {
+        "Month": 6,
+        "TotalAmount": 6192681.8
+      },
+      {
+        "Month": 7,
+        "TotalAmount": 2170209.0665
+      },
+      {
+        "Month": 8,
+        "TotalAmount": 10947718852.364414
+      },
+      {
+        "Month": 9,
+        "TotalAmount": 530035196.11
+      },
+      {
+        "Month": 10,
+        "TotalAmount": 43208245.6098
+      },
+      {
+        "Month": 11,
+        "TotalAmount": 7156843.134112
+      },
+      {
+        "Month": 12,
+        "TotalAmount": 122793428.27192
+      }
+    ],
+    "summary": "12 rows returned",
+    "chart_type": "table",
+    "created_at": "2025-04-17 15:55:22.763676"
+  },
+  {
+    "id": 14,
+    "title": "total ammount form PurchaseOrder by month in 2024",
+    "original_prompt": "total ammount form PurchaseOrder by month in 2024",
+    "sql_query": "SELECT \n    MONTH(OrderDate) AS MonthNumber,\n    DATENAME(MONTH, OrderDate) AS MonthName,\n    SUM(NetAmount) AS TotalAmount\nFROM \n    PurchaseOrder\nWHERE \n    YEAR(OrderDate) = 2024\nGROUP BY \n    MONTH(OrderDate),\n    DATENAME(MONTH, OrderDate)\nORDER BY \n    MonthNumber;",
+    "json_result": [
+      {
+        "MonthNumber": 1,
+        "MonthName": "January",
+        "TotalAmount": 3612413.2
+      },
+      {
+        "MonthNumber": 2,
+        "MonthName": "February",
+        "TotalAmount": 1425422
+      },
+      {
+        "MonthNumber": 3,
+        "MonthName": "March",
+        "TotalAmount": 20236181.1459
+      },
+      {
+        "MonthNumber": 4,
+        "MonthName": "April",
+        "TotalAmount": 2444343.7296
+      },
+      {
+        "MonthNumber": 5,
+        "MonthName": "May",
+        "TotalAmount": 34901818.5141
+      },
+      {
+        "MonthNumber": 6,
+        "MonthName": "June",
+        "TotalAmount": 6192681.8
+      },
+      {
+        "MonthNumber": 7,
+        "MonthName": "July",
+        "TotalAmount": 2170209.0665
+      },
+      {
+        "MonthNumber": 8,
+        "MonthName": "August",
+        "TotalAmount": 10947718852.364414
+      },
+      {
+        "MonthNumber": 9,
+        "MonthName": "September",
+        "TotalAmount": 530035196.11
+      },
+      {
+        "MonthNumber": 10,
+        "MonthName": "October",
+        "TotalAmount": 43208245.6098
+      },
+      {
+        "MonthNumber": 11,
+        "MonthName": "November",
+        "TotalAmount": 7156843.134112
+      },
+      {
+        "MonthNumber": 12,
+        "MonthName": "December",
+        "TotalAmount": 122793428.27192
+      }
+    ],
+    "summary": "12 rows returned",
+    "chart_type": "table",
+    "created_at": "2025-04-17 15:00:57.080896"
+  },
+  {
+    "id": 13,
+    "title": "total ammount form PurchaseOrder by month 2024 in pie chart only the month name and amount ",
+    "original_prompt": "total ammount form PurchaseOrder by month 2024 in pie chart only the month name and amount ",
+    "sql_query": "SELECT \n    DATENAME(MONTH, OrderDate) AS MonthName,\n    SUM(NetAmount) AS TotalAmount\nFROM \n    PurchaseOrder\nWHERE \n    YEAR(OrderDate) = 2024\nGROUP BY \n    DATENAME(MONTH, OrderDate), \n    MONTH(OrderDate)\nORDER BY \n    MONTH(OrderDate)",
+    "json_result": [
+      {
+        "MonthName": "January",
+        "TotalAmount": 3612413.2
+      },
+      {
+        "MonthName": "February",
+        "TotalAmount": 1425422
+      },
+      {
+        "MonthName": "March",
+        "TotalAmount": 20236181.1459
+      },
+      {
+        "MonthName": "April",
+        "TotalAmount": 2444343.7296
+      },
+      {
+        "MonthName": "May",
+        "TotalAmount": 34901818.5141
+      },
+      {
+        "MonthName": "June",
+        "TotalAmount": 6192681.8
+      },
+      {
+        "MonthName": "July",
+        "TotalAmount": 2170209.0665
+      },
+      {
+        "MonthName": "August",
+        "TotalAmount": 10947718852.364414
+      },
+      {
+        "MonthName": "September",
+        "TotalAmount": 530035196.11
+      },
+      {
+        "MonthName": "October",
+        "TotalAmount": 43208245.6098
+      },
+      {
+        "MonthName": "November",
+        "TotalAmount": 7156843.134112
+      },
+      {
+        "MonthName": "December",
+        "TotalAmount": 122793428.27192
+      }
+    ],
+    "summary": "12 rows returned",
+    "chart_type": "pie",
+    "created_at": "2025-04-17 14:59:18.845272"
+  },
+  {
+    "id": 9,
+    "title": "show the blog comment count on date in a bar chart",
+    "original_prompt": "show the blog comment count on date in a bar chart",
+    "sql_query": "SELECT \n    DATE(bgc_time) AS comment_date,\n    COUNT(*) AS comment_count\nFROM \n    blog_comment\nGROUP BY \n    DATE(bgc_time)\nORDER BY \n    comment_date;",
+    "json_result": [
+      {
+        "comment_date": "2023-04-08",
+        "comment_count": 4
+      },
+      {
+        "comment_date": "2023-04-09",
+        "comment_count": 2
+      },
+      {
+        "comment_date": "2023-05-03",
+        "comment_count": 1
+      }
+    ],
+    "summary": "3 rows returned",
+    "chart_type": "bar",
+    "created_at": "2025-04-16 16:07:49.668566"
+  },
+  {
+    "id": 7,
+    "title": "total reviews by date in line chart",
+    "original_prompt": "total reviews by date in line chart",
+    "sql_query": "SELECT \n    DATE(c_time) AS review_date,\n    COUNT(*) AS total_reviews\nFROM \n    review_table\nGROUP BY \n    review_date\nORDER BY \n    review_date;",
+    "json_result": [
+      {
+        "review_date": "2023-04-02",
+        "total_reviews": 4
+      },
+      {
+        "review_date": "2023-04-08",
+        "total_reviews": 1
+      },
+      {
+        "review_date": "2023-04-09",
+        "total_reviews": 1
+      }
+    ],
+    "summary": "3 rows returned",
+    "chart_type": "line",
+    "created_at": "2025-04-16 15:51:41.166382"
+  },
+  {
+    "id": 5,
+    "title": "total reviews by date in pie chart",
+    "original_prompt": "total reviews by date in pie chart",
+    "sql_query": "SELECT \n    DATE(c_time) AS review_date,\n    COUNT(*) AS total_reviews\nFROM \n    review_table\nGROUP BY \n    DATE(c_time)\nORDER BY \n    review_date;",
+    "json_result": [
+      {
+        "review_date": "2023-04-02",
+        "total_reviews": 4
+      },
+      {
+        "review_date": "2023-04-08",
+        "total_reviews": 1
+      },
+      {
+        "review_date": "2023-04-09",
+        "total_reviews": 1
+      }
+    ],
+    "summary": "3 rows returned",
+    "chart_type": "pie",
+    "created_at": "2025-04-16 13:03:06.586093"
+  },
+  {
+    "id": 4,
+    "title": "restaurant name and its owner names  in table",
+    "original_prompt": "restaurant name and its owner names  in table",
+    "sql_query": "SELECT r.r_name, u.us_name \nFROM restaurant r\nJOIN user u ON r.r_us_id = u.us_id;",
+    "json_result": [
+      {
+        "r_name": "Sultan Dine",
+        "us_name": "sama"
+      },
+      {
+        "r_name": "Kacchi Bhai",
+        "us_name": "Osman Goni"
+      },
+      {
+        "r_name": " Pizza hut",
+        "us_name": "dd"
+      },
+      {
+        "r_name": "Yum cha",
+        "us_name": "sm"
+      },
+      {
+        "r_name": "Sama Rkk",
+        "us_name": "sama"
+      },
+      {
+        "r_name": "ssfsf",
+        "us_name": "dd"
+      }
+    ],
+    "summary": "6 rows returned",
+    "chart_type": "table",
+    "created_at": "2025-04-16 13:02:36.468238"
+  },
+  {
+    "id": 3,
+    "title": "show the blog comment count on date in a line chart ",
+    "original_prompt": "show the blog comment count on date in a line chart ",
+    "sql_query": "SELECT \n    DATE(bgc_time) AS comment_date,\n    COUNT(*) AS comment_count\nFROM \n    blog_comment\nGROUP BY \n    comment_date\nORDER BY \n    comment_date;",
+    "json_result": [
+      {
+        "comment_date": "2023-04-08",
+        "comment_count": 4
+      },
+      {
+        "comment_date": "2023-04-09",
+        "comment_count": 2
+      },
+      {
+        "comment_date": "2023-05-03",
+        "comment_count": 1
+      }
+    ],
+    "summary": "3 rows returned",
+    "chart_type": "line",
+    "created_at": "2025-04-16 13:02:15.152999"
+  },
+  {
+    "id": 2,
+    "title": "total reviews on a chart by date\n",
+    "original_prompt": "total reviews on a chart by date\n",
+    "sql_query": "SELECT \n    DATE(c_time) AS review_date,\n    COUNT(*) AS total_reviews\nFROM \n    review_table\nGROUP BY \n    review_date\nORDER BY \n    review_date;",
+    "json_result": [
+      {
+        "review_date": "2023-04-02",
+        "total_reviews": 4
+      },
+      {
+        "review_date": "2023-04-08",
+        "total_reviews": 1
+      },
+      {
+        "review_date": "2023-04-09",
+        "total_reviews": 1
+      }
+    ],
+    "summary": "3 rows returned",
+    "chart_type": "bar",
+    "created_at": "2025-04-16 13:01:38.839973"
+  },
+  {
+    "id": 1,
+    "title": "how many blogs ?",
+    "original_prompt": "how many blogs ?",
+    "sql_query": "SELECT COUNT(*) AS total_blogs FROM blog_post;",
+    "json_result": [
+      {
+        "total_blogs": 6
+      }
+    ],
+    "summary": "1 rows returned",
+    "chart_type": "table",
+    "created_at": "2025-04-16 13:01:19.303435"
+  }
+]

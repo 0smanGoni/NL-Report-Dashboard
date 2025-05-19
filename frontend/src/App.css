@@ -1,0 +1,247 @@
+/* ===========================
+   🌗 THEME VARIABLES
+=========================== */
+:root {
+  --bg-color: #ffffff;
+  --text-color: #111111;
+  --card-bg: #ffffff;
+  --card-border: #ddd;
+  --btn-primary: #1DCD9F;
+  --btn-save: #67AE6E;
+  --btn-danger: #ba3809;
+  --table-header: #f4f4f4;
+  --table-hover: #f9f9f9;
+}
+
+[data-theme="dark"] {
+  --bg-color: #1c1c1c;
+  --text-color: #e0e0e0;
+  --card-bg: #2c2c2c;
+  --card-border: #444;
+  --btn-primary: #0bbf8a;
+  --btn-save: #5ea569;
+  --btn-save2: #28adde;
+  --btn-danger: #e94e3d;
+  --table-header: #333;
+  --table-hover: #444;
+}
+
+/* ===========================
+   🌍 GLOBAL BASE STYLES
+=========================== */
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  font-family: Arial, sans-serif;
+}
+
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+/* ===========================
+   🔷 CARDS
+=========================== */
+.card,
+.result-card,
+.saved-report {
+  margin-bottom: 24px;
+  padding: 16px;
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  text-align: left;
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+.container {
+  background-color: rgba(255, 255, 255, 0.95); /* Light glass effect */
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  padding: 2rem;
+  max-width: 1280px;
+  margin: 2rem auto;
+  text-align: center;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Dark theme override */
+[data-theme="dark"] .container {
+  background-color: rgba(44, 44, 44, 0.95); /* Subtle tint for dark */
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+
+
+/* ===========================
+   📊 TABLE STYLES
+=========================== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+  font-size: 0.95rem;
+  color: var(--text-color);
+}
+
+th, td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--card-border);
+}
+
+th {
+  background-color: var(--table-header);
+  font-weight: bold;
+}
+
+tr:hover {
+  background-color: var(--table-hover);
+}
+
+/* ===========================
+   🔘 BUTTONS
+=========================== */
+button {
+  font-size: 0.95rem;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 10px;
+  margin-right: 8px;
+  color: #fff;
+  border: none;
+  font-weight: bold;
+}
+
+/* Analyze Button */
+.btn-analyze {
+  background: linear-gradient(45deg, #0e9772, #1ad5a7);
+}
+
+.btn-analyze:hover {
+  background: linear-gradient(45deg, #05b48b, #76e6cb);
+}
+
+/* Save Button */
+.btn-save {
+  background-color: var(--btn-save);
+}
+
+.btn-save:hover {
+  background-color: #589c5f;
+}
+/* Save Button2 */
+.btn-save2 {
+  background-color: var(--btn-save2);
+}
+
+.btn-save2:hover {
+  background-color: #0080ff;
+}
+
+/* Delete Button */
+.btn-delete {
+  background-color: var(--btn-danger);
+}
+
+.btn-delete:hover {
+  background-color: #ff0000;
+}
+
+/* ===========================
+   ⬇️ SELECT (DROPDOWN)
+=========================== */
+.db-select {
+  padding: 8px 12px;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  margin-right: 8px;
+  background-color: #fff;
+  cursor: pointer;
+  max-width: 100%;
+}
+
+.db-select:focus {
+  outline: none;
+  border-color: #1DCD9F;
+  box-shadow: 0 0 4px rgba(29, 205, 159, 0.4);
+}
+
+/* ===========================
+   📄 MISC
+=========================== */
+.read-the-docs {
+  color: #888;
+  font-style: italic;
+  font-size: 0.9rem;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  transition: filter 300ms;
+}
+
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+/* ===========================
+   📱 RESPONSIVE
+=========================== */
+@media (max-width: 768px) {
+  #root {
+    padding: 1rem;
+  }
+
+  table {
+    font-size: 0.85rem;
+  }
+
+  button {
+    font-size: 0.85rem;
+    padding: 6px 12px;
+  }
+}
+/* Loading override */
+#nprogress .bar {
+  background: #29d;
+}
+#nprogress .spinner-icon {
+  border-top-color: #29d;
+  border-left-color: #29d;
+}
+.loading-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, #4ca1af, #c4e0e5);
+  animation: moveBar 1.5s linear infinite;
+}
+
+@keyframes moveBar {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(-20%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}

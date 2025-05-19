@@ -1,0 +1,13 @@
+[
+  {
+    "name": "SME MSSQL",
+    "DB_HOST": "10.209.99.144",
+    "DB_PORT": "1433",
+    "DB_USER": "smeapp",
+    "DB_PASSWORD": "sds#dt454sesa0wdnp@1vpo#98",
+    "DB_NAME": "SME",
+    "ENGINE": "mssql",
+    "DEEPSEEK_API_KEY": "sk-e750fe4b57ce40f0bc3f803ab3b52bc2",
+    "id": 1
+  }
+]

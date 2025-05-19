@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+openai
+mysql-connector-python
+sqlalchemy
+pydantic
+python-dotenv
+pandas
+pyodbc
+requests
