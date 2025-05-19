@@ -29,40 +29,49 @@ Ensure you have the following installed:
 
 ## 🚀 Setup Instructions
 1. Clone the Repository
-  - git clone https://github.com/0smanGoni/NL-Report-Dashboard.git
-  - cd nl-report-dashboard
+```console
+git clone https://github.com/0smanGoni/NL-Report-Dashboard.git
+cd nl-report-dashboard
+```
 
 2. Backend Setup
 a. Create a Virtual Environment
-  - cd backend
-  - python3 -m venv myenv
-
+```console
+cd backend
+python3 -m venv myenv
+```
 Activate the environment:
 
 Linux/macOS:
-  - source myenv/bin/activate
-
+```console
+source myenv/bin/activate
+```
 Windows:
-  - myenv\Scripts\activate.bat
-
+```console
+myenv\Scripts\activate.bat
+```
 b. Install Dependencies
-  - pip install -r requirements.txt
-
+```console
+pip install -r requirements.txt
+```
 The backend will run on http://localhost:8000.
 3. Frontend Setup
 a. Create and Initialize the React Project
 If the frontend directory doesn’t exist, create it with Vite:
-  - npm create vite@latest frontend -- --template react
-  - cd frontend
-
+npm create vite@latest frontend -- --template react
+```console
+cd frontend
+```
 b. Install Dependencies
-  - npm install
-  - npm install axios react-chartjs-2 chart.js
-
+```console
+npm install
+npm install axios react-chartjs-2 chart.js
+```
 c. Run the Frontend
 Start the React development server:
-  - npm run dev
-
+```console
+npm run dev
+```
 The frontend will run on http://localhost:5173 (or another port if specified by Vite).
 
 ## 🔑 Configuration
@@ -138,16 +147,19 @@ Contributions are welcome! To contribute:
 Fork the repository.
 
 - Create a feature branch:
-  - git checkout -b feature/your-feature
-
+```console
+git checkout -b feature/your-feature
+```
 
 - Commit changes:
-  - git commit -m "Add your feature"
-
+```console
+git commit -m "Add your feature"
+```
 
 - Push to the branch:
-  - git push origin feature/your-feature
-
+```console
+git push origin feature/your-feature
+```
 
 - Open a pull request.
 
